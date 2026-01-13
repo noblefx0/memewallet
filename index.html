@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemeWallet</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header / Balance -->
+    <header>
+        <div class="header-content">
+            <div class="wallet-info">
+                <div class="avatar">MW</div>
+                <div>
+                    <p>Main Wallet</p>
+                    <p class="balance">$10,000.00</p>
+                </div>
+            </div>
+            <p class="id">ID: 34117488</p>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions">
+            <a href="send.html" class="action-card">
+                <div class="action-icon">↑</div>
+                <p>Send</p>
+            </a>
+            <a href="deposit.html" class="action-card">
+                <div class="action-icon">+</div>
+                <p>Deposit</p>
+            </a>
+            <a href="swap.html" class="action-card">
+                <div class="action-icon">↔</div>
+                <p>Swap</p>
+            </a>
+            <a href="receive.html" class="action-card">
+                <div class="action-icon">↓</div>
+                <p>Receive</p>
+            </a>
+        </div>
+    </header>
+
+    <!-- Tokens -->
+    <main>
+        <h2>Tokens</h2>
+        <div class="token-list" id="tokenList">
+            <!-- Real coins will be added by JS -->
+            <div class="token-card placeholder">
+                <div class="token-info">
+                    <div class="token-icon">PEPE</div>
+                    <div>
+                        <p>Pepe (PEPE)</p>
+                        <p class="price">$0.00001234</p>
+                    </div>
+                </div>
+                <span class="price-change-up">+12.4%</span>
+            </div>
+            <!-- more placeholders... -->
+        </div>
+    </main>
+
+    <!-- Bottom nav -->
+    <nav>
+        <div class="nav-bar">
+            <div class="nav-item active">Home</div>
+            <div class="nav-item">Markets</div>
+            <div class="nav-item">Trade</div>
+            <div class="nav-item">Earn</div>
+            <div class="nav-item">Discover</div>
+        </div>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
