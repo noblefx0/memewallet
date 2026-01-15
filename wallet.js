@@ -1,4 +1,3 @@
-
 // wallet.js - shared fake wallet logic
 
 let balance = localStorage.getItem("balance")
