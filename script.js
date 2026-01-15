@@ -1,14 +1,14 @@
 // script.js
 
 const coins = [
-  { id: "shiba-inu", name: "Shiba Inu", symbol: "SHIB" },
-  { id: "floki-inu", name: "FLOKI", symbol: "FLOKI" },
-  { id: "popcat-sol", name: "Popcat", symbol: "POPCAT" },
-  { id: "bonk", name: "Bonk", symbol: "BONK" },
-  { id: "book-of-meme", name: "Book of Meme", symbol: "BOME" },
-  { id: "bitcoin", name: "Bitcoin", symbol: "BTC" },
-  { id: "ethereum", name: "Ethereum", symbol: "ETH" },
-  { id: "solana", name: "Solana", symbol: "SOL" }
+    { id: "bitcoin", name: "Bitcoin", symbol: "BTC" },
+    { id: "ethereum", name: "Ethereum", symbol: "ETH" },
+    { id: "solana", name: "Solana", symbol: "SOL" },
+    { id: "shiba-inu", name: "Shiba Inu", symbol: "SHIB" },
+    { id: "floki-inu", name: "FLOKI", symbol: "FLOKI" },
+    { id: "popcat-sol", name: "Popcat", symbol: "POPCAT" },
+    { id: "bonk", name: "Bonk", symbol: "BONK" },
+    { id: "book-of-meme", name: "Book of Meme", symbol: "BOME" }
 ];
 
 // Function to fetch live prices from CoinGecko
@@ -70,4 +70,12 @@ function renderTokens(priceData) {
 fetchPrices();
 
 // Refresh prices every 60 seconds
-setInterval(fetchPrices, 60000);
+setInterval(fetchPrices, 40000);
+
+// Refresh balance every time page is shown (including back navigation)
+window.addEventListener("pageshow", () => {
+    updateHomeBalance();
+});
+
+// Also call once on initial load
+updateHomeBalance();
