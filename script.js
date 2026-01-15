@@ -1,5 +1,4 @@
 // script.js
-
 const coins = [
     { id: "bitcoin", name: "Bitcoin", symbol: "BTC" },
     { id: "ethereum", name: "Ethereum", symbol: "ETH" },
@@ -70,7 +69,7 @@ function renderTokens(priceData) {
 fetchPrices();
 
 // Refresh prices every 60 seconds
-setInterval(fetchPrices, 40000);
+setInterval(fetchPrices, 60000);
 
 // Refresh balance every time page is shown (including back navigation)
 window.addEventListener("pageshow", () => {
