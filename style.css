@@ -80,6 +80,7 @@ header {
 main {
   flex: 1;
   padding: 20px;
+  margin-bottom: 50px;
 }
 
 h2 {
@@ -146,13 +147,13 @@ nav {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px 0;
+  padding: 16px 0;
 }
 
 .nav-bar {
   display: flex;
   justify-content: space-around;
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .nav-item {
