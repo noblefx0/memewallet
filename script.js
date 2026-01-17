@@ -1,80 +1,86 @@
-// script.js
-const coins = [
-    { id: "bitcoin", name: "Bitcoin", symbol: "BTC" },
-    { id: "ethereum", name: "Ethereum", symbol: "ETH" },
-    { id: "solana", name: "Solana", symbol: "SOL" },
-    { id: "shiba-inu", name: "Shiba Inu", symbol: "SHIB" },
-    { id: "floki-inu", name: "FLOKI", symbol: "FLOKI" },
-    { id: "popcat-sol", name: "Popcat", symbol: "POPCAT" },
-    { id: "bonk", name: "Bonk", symbol: "BONK" },
-    { id: "book-of-meme", name: "Book of Meme", symbol: "BOME" }
-];
 
-// Function to fetch live prices from CoinGecko
-async function fetchPrices() {
-    try {
-        const ids = coins.map(coin => coin.id).join(',');
-        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+// Save portfolio + balance
+function savePortfolio() {
+    localStorage.setItem("portfolio", JSON.stringify(portfolio));
+}
 
-        // Update the token list on the page
-        renderTokens(data);
-    } catch (error) {
-        console.error("Error fetching prices:", error);
-        document.getElementById("tokenList").innerHTML = "<p style='color: red; text-align: center;'>Failed to load prices. Try again later.</p>";
+function updateBalance() {
+    const el = document.querySelector(".balance");
+    if (el) {
+        el.innerHTML = `$${balance.toFixed(2)}`;
     }
 }
 
-// Render the token cards
-function renderTokens(priceData) {
-    const tokenList = document.getElementById("tokenList");
-    tokenList.innerHTML = ""; // clear old cards
+// Render only owned coins on home
+async function renderPortfolio() {
+    const list = document.getElementById("tokenList");
+    list.innerHTML = "";
 
-    coins.forEach(coin => {
-        const info = priceData[coin.id];
-        if (!info) return; // skip if no data
+    if (Object.keys(portfolio).length === 0) {
+        list.innerHTML =
+            "<p style='text-align:center; color:#aaa;'>No tokens yet — search & buy some!</p>";
+        return;
+    }
 
-        const price = info.usd.toFixed(8);
-        const change = info.usd_24h_change?.toFixed(2) || 0;
-        const changeClass = change >= 0 ? "price-change-up" : "price-change-down";
-        const changeText = change >= 0 ? `+${change}%` : ` ${change}%`;
+    let totalValue = 0;
 
-        const card = document.createElement("div");
-        card.className = "token-card";
-        card.style.cursor = "pointer"; // makes it look clickable
+    for (const ca in portfolio) {
+        const holding = portfolio[ca];
+        if (holding.amount <= 0) continue;
 
-        // Make the whole card clickable → opens buy-sell page for this coin
-        card.onclick = () => {
-            window.location.href = `buy-sell.html?coin=${coin.id}`;
-        };
+        try {
+            const response = await fetch(
+                `https://api.dexscreener.com/latest/dex/tokens/${ca}`
+            );
+            const data = await response.json();
 
-        card.innerHTML = `
-      <div class="token-info">
-        <div class="token-icon">${coin.symbol}</div>
-        <div>
-          <p> ${coin.name} ${coin.symbol}</p>
-          <p class="price"> ${price}</p>
+            if (!data.pairs || data.pairs.length === 0) continue;
+
+            const pair = data.pairs[0];
+            const price = Number(pair.priceUsd);
+            const value = holding.amount * price;
+            totalValue += value;
+
+            const card = document.createElement("div");
+            card.className = "token-card";
+            card.onclick = () => {
+                window.location.href = `buy-sell.html?coin=${ca}`;
+            };
+
+            card.innerHTML = `
+        <div class="token-info">
+          <div class="token-icon">${pair.baseToken.symbol}</div>
+          <div>
+            <p>${pair.baseToken.name} (${pair.baseToken.symbol})</p>
+            <p class="price">$${value.toFixed(2)}</p>
+          </div>
         </div>
-      </div>
-      <span class="${changeClass}"> ${changeText}</span>
-    `;
+        <span>${holding.amount.toFixed(4)} coins</span>
+      `;
 
-        tokenList.appendChild(card);
-    });
+            list.appendChild(card);
+        } catch (error) {
+            console.error("Price fetch error for", ca, ":", error);
+        }
+    }
+
+    // Show total value
+    const totalEl = document.createElement("p");
+    totalEl.style.textAlign = "center";
+    totalEl.style.fontWeight = "bold";
+    totalEl.style.marginBottom = "16px";
+    totalEl.innerHTML = `Total Value: $${totalValue.toFixed(2)}`;
+    list.prepend(totalEl);
 }
 
-// Load prices when page opens
-fetchPrices();
+// Search button
+document.getElementById("searchBtn").onclick = () => {
+    const ca = document.getElementById("caInput").value.trim();
+    if (!ca) return alert("Paste a CA");
+    window.location.href = `buy-sell.html?coin=${ca}`;
+};
 
-// Refresh prices every 60 seconds
-setInterval(fetchPrices, 60000);
-
-// Refresh balance every time page is shown (including back navigation)
-window.addEventListener("pageshow", () => {
-    updateHomeBalance();
-});
-
-// Also call once on initial load
-updateHomeBalance();
+// Load on page open + back
+renderPortfolio();
+window.addEventListener("pageshow", renderPortfolio);
