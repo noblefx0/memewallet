@@ -1,145 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trade Coin</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <header>
-        <a href="index.html" style="color: #00ff9d; text-decoration: none; font-size: 18px;">← Back</a>
+        <a href="index.html" style="color: #00ff9d; text-decoration: none; font-size: 18px">← Back</a>
         <h1>Trade</h1>
     </header>
 
-    <main style="padding: 20px;">
+    <main style="padding: 20px">
         <h2 id="coinName">Loading coin...</h2>
         <p id="currentPrice">Price: Loading...</p>
         <p id="change24h">24h Change: Loading...</p>
 
-        <div style="margin: 30px 0;">
-            <label style="display: block; margin-bottom: 8px;">Amount (USD):</label>
-            <input type="number" id="amount" placeholder="e.g. 100"
-                style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #444; background: #1e1e1e; color: white;">
+        <div style="margin: 30px 0">
+            <label style="display: block; margin-bottom: 8px">Amount (USD):</label>
+            <input type="number" id="amount" placeholder="e.g. 100" style="
+                        width: 100%;
+                        padding: 12px;
+                        font-size: 16px;
+                        border-radius: 8px;
+                        border: 1px solid #444;
+                        background: #1e1e1e;
+                        color: white;
+                    " />
         </div>
 
-        <div style="display: flex; gap: 12px;">
-            <button id="buyBtn"
-                style="flex: 1; padding: 14px; background: #00ff9d; color: black; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">Buy</button>
-            <button id="sellBtn"
-                style="flex: 1; padding: 14px; background: #ff3b30; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">Sell</button>
+        <div style="display: flex; gap: 12px">
+            <button id="buyBtn" style="
+                        flex: 1;
+                        padding: 14px;
+                        background: #00ff9d;
+                        color: black;
+                        border: none;
+                        border-radius: 10px;
+                        font-weight: bold;
+                        font-size: 16px;
+                    ">
+                Buy
+            </button>
+            <button id="sellBtn" style="
+                        flex: 1;
+                        padding: 14px;
+                        background: #ff3b30;
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        font-weight: bold;
+                        font-size: 16px;
+                    ">
+                Sell
+            </button>
         </div>
 
-        <p id="feedback" style="margin-top: 20px; font-size: 18px; text-align: center;"></p>
+        <p id="feedback" style="margin-top: 20px; font-size: 18px; text-align: center"></p>
     </main>
+    <script src="wallet.js"></script>
+    <script src="wallet.js"></script>
 
     <script>
-        // Get coin ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const coinId = urlParams.get("coin");
 
         if (!coinId) {
             document.getElementById("coinName").innerHTML = "No coin selected";
-            // No return needed here — just stop
         } else {
-            // Fetch real price for this coin
             async function loadCoin() {
                 try {
-                    const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`);
+                    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${coinId}`);
                     const data = await response.json();
-                    const info = data[coinId];
 
-                    if (!info) throw new Error("No data");
+                    if (!data.pairs || data.pairs.length === 0) {
+                        throw new Error("No pair found");
+                    }
 
-                    document.getElementById("coinName").innerHTML = `${coinId.toUpperCase()} Trade`;
-                    document.getElementById("currentPrice").innerHTML = `Price: $${info.usd.toFixed(8)}`;
-                    const change = info.usd_24h_change?.toFixed(2) || 0;
+                    const pair = data.pairs[0];
+                    const price = Number(pair.priceUsd);
+                    const change = pair.priceChange?.h24 || 0;
+
+                    document.getElementById("coinName").innerHTML = `${pair.baseToken.symbol} Trade`;
+                    document.getElementById("currentPrice").innerHTML = `Price: $${price.toFixed(8)}`;
+
                     const changeText = change >= 0 ? `+${change}%` : `${change}%`;
-                    document.getElementById("change24h").innerHTML = `24h Change: <span style="color:${change >= 0 ? '#00ff9d' : '#ff3b30'};">${changeText}</span>`;
+                    const color = change >= 0 ? '#00ff9d' : '#ff3b30';
+                    document.getElementById("change24h").innerHTML = `24h Change: <span style="color:${color};">${changeText}</span>`;
                 } catch (error) {
+                    console.error("Load error:", error);
                     document.getElementById("coinName").innerHTML = "Error loading coin";
-                    console.error(error);
                 }
             }
 
             loadCoin();
         }
 
-        // Buy button placeholder
-        async function getCurrentPrice() {
-            try {
-                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
-                const data = await response.json();
-                return data[coinId]?.usd || null;
-            } catch (error) {
-                console.error("Price fetch error:", error);
-                return null;
-            }
-        }
-
-        document.getElementById("buyBtn").onclick = async () => {
-            const usdAmount = Number(document.getElementById("amount").value);
-            const amountEl = document.getElementById("amount");
-            const amount = Number(amountEl.value);
-            const feedback = document.getElementById("feedback");
-
+        // Buy button
+        document.getElementById("buyBtn").onclick = () => {
+            const amount = Number(document.getElementById("amount").value);
             if (amount <= 0 || isNaN(amount)) {
-                feedback.innerHTML = "Enter a valid amount!";
-                feedback.style.color = "red";
+                document.getElementById("feedback").innerHTML = "Enter a valid amount!";
                 return;
             }
 
-            const currentPrice = await getCurrentPrice();
-            if (!currentPrice) {
-                feedback.innerHTML = "Failed to get current price!";
-                feedback.style.color = "red";
-                return;
-            }
+            const priceText = document.getElementById("currentPrice").innerHTML;
+            const currentPrice = Number(priceText.replace("Price: $", ""));
 
             const result = buyCoin(coinId, amount, currentPrice);
-            feedback.innerHTML = result.message;
-            feedback.style.color = result.success ? "#00ff9d" : "red";
-
-            if (result.success) amountEl.value = ""; // clear input
+            document.getElementById("feedback").innerHTML = result.message;
         };
 
-        document.getElementById("sellBtn").onclick = async () => {
-            const usdDesired = Number(document.getElementById("amount").value);
-            const feedback = document.getElementById("feedback");
+        // Sell placeholder
+        document.getElementById("sellBtn").onclick = () => {
+            const amountEl = document.getElementById("amount");
+            const rawValue = amountEl.value.trim();
+            const coinAmount = Number(rawValue);
 
-            if (usdDesired <= 0 || isNaN(usdDesired)) {
-                feedback.innerHTML = "Enter a valid amount!";
-                feedback.style.color = "red";
+            if (isNaN(coinAmount) || coinAmount <= 0) {
+                document.getElementById("feedback").innerHTML = "Enter a valid amount!";
+                document.getElementById("feedback").style.color = "red";
                 return;
             }
 
-            const currentPrice = await getCurrentPrice();
-            if (!currentPrice) {
-                feedback.innerHTML = "Failed to get price!";
-                feedback.style.color = "red";
+            const priceText = document.getElementById("currentPrice").innerHTML;
+            const currentPrice = Number(priceText.replace("Price: $", ""));
+
+            if (isNaN(currentPrice) || currentPrice <= 0) {
+                document.getElementById("feedback").innerHTML = "Invalid price";
                 return;
             }
 
-            const coinsToSell = usdDesired / currentPrice;
+            const result = sellCoin(coinId, coinAmount, currentPrice);
+            document.getElementById("feedback").innerHTML = result.message;
+            document.getElementById("feedback").style.color = result.success ? "#00ff9d" : "red";
 
-            // Check if you own enough coins
-            const owned = portfolio[coinId]?.amount || 0;
-            if (coinsToSell > owned) {
-                feedback.innerHTML = `Not enough ${coinId.toUpperCase()}! You own ${owned.toFixed(4)}`;
-                feedback.style.color = "red";
-                return;
-            }
-
-            const result = sellCoin(coinId, coinsToSell, currentPrice);
-            feedback.innerHTML = result.message;
-            feedback.style.color = result.success ? "#00ff9d" : "red";
-
-            if (result.success) document.getElementById("amount").value = "";
+            if (result.success) amountEl.value = "";
         };
     </script>
-    <script src="wallet.js"></script>
+
 </body>
 
 </html>
