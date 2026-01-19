@@ -1,15 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MemeWallet</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-
     <!-- Header / Balance -->
     <header>
         <div class="header-content">
@@ -46,18 +45,48 @@
 
     <!-- Tokens -->
     <main>
-        <h2>Tokens</h2>
+        <div style="margin: 0 0 24px 0; position: relative">
+            <input type="text" id="caInput" placeholder="Paste CA to trade..." style="
+                        width: 100%;
+                        padding: 14px 60px 14px 16px;
+                        font-size: 16px;
+                        border-radius: 12px;
+                        border: 1px solid #444;
+                        background: #1e1e1e;
+                        color: white;
+                    " />
+            <button id="searchBtn" style="
+                        position: absolute;
+                        right: 8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: #00ff9d;
+                        color: black;
+                        border: none;
+                        padding: 10px 16px;
+                        border-radius: 8px;
+                        font-weight: bold;
+                    ">
+                Search
+            </button>
+        </div>
+
+        <h2>My Tokens</h2>
         <div class="token-list" id="tokenList">
-            <!-- Real coins will be added by JS -->
+            <!-- Only bought coins here -->
+            <div id="loadingState" class="loading-container">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading your tokens...</p>
+            </div>
+
             <div class="token-card placeholder">
                 <div class="token-info">
-                    <div class="token-icon">PEPE</div>
+                    <div class="token-icon"></div>
                     <div>
-                        <p>Pepe (PEPE)</p>
-                        <p class="price">$0.00001234</p>
+                        <p class="price">$0.0000</p>
                     </div>
                 </div>
-                <span class="price-change-up">+12.4%</span>
+                <span class="price-change-up">+0.00%</span>
             </div>
             <!-- more placeholders... -->
         </div>
@@ -66,15 +95,16 @@
     <!-- Bottom nav -->
     <nav>
         <div class="nav-bar">
-            <div class="nav-item active">Home</div>
-            <div class="nav-item">Markets</div>
-            <div class="nav-item">Trade</div>
-            <div class="nav-item">Earn</div>
-            <div class="nav-item">Discover</div>
+            <a href="index.html" class="nav-item active" style="text-decoration: none; color: inherit">Home</a>
+            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Markets</a>
+            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Trade</a>
+            <a href="swap-soon.html" class="nav-item" style="text-decoration: none; color: #aaa">Earn</a>
+            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Discover</a>
         </div>
     </nav>
-
+    <script src="wallet.js"></script>
     <script src="script.js"></script>
+
 </body>
 
 </html>

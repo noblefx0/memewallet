@@ -80,6 +80,7 @@ header {
 main {
   flex: 1;
   padding: 20px;
+  margin-bottom: 50px;
 }
 
 h2 {
@@ -146,13 +147,13 @@ nav {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px 0;
+  padding: 16px 0;
 }
 
 .nav-bar {
   display: flex;
   justify-content: space-around;
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .nav-item {
@@ -168,4 +169,31 @@ nav {
 html, body, header, main, .quick-actions, .token-list {
   overflow-x: hidden;
   max-width: 100%;
+}
+
+/* Loading spinner & state */
+.loading-container {
+  text-align: center;
+  padding: 60px 20px;
+  color: #aaa;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #333;
+  border-top: 6px solid #00ff9d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 18px;
+  margin-top: 10px;
 }
