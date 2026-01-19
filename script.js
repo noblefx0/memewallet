@@ -33,7 +33,7 @@ async function renderPortfolio() {
     // First collect all data
     for (const ca of ownedCAs) {
       const holding = portfolio[ca];
-      if (holding.amount < 0.00001) continue;
+      if (holding.amount < 0.0001) continue;
 
       const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
       const data = await response.json();
