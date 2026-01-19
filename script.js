@@ -80,7 +80,7 @@ async function renderPortfolio() {
           </div>
         </div>
         <div style="text-align:right;">
-          <p>${holding.amount.toFixed(4)} coins</p>
+          <p>${formatNumber(holding.amount)} coins</p>
           <p style="color:${pnlColor};">${pnlText}</p>
         </div>
       `;
@@ -132,4 +132,14 @@ document.getElementById("caInput").addEventListener("keypress", (e) => {
     document.getElementById("searchBtn").click();
   }
 });
+
+function formatNumber(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(2) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(2) + 'K';
+  } else {
+    return num.toFixed(4);  // keep 4 decimals for small numbers
+  }
+}
 updateHomeBalance(); // initial
