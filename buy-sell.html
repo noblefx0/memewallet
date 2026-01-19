@@ -14,10 +14,13 @@
         <h1>Trade</h1>
     </header>
 
-    <main style="padding: 20px">
+    <main style="padding: 25px ">
         <h2 id="coinName">Loading coin...</h2>
         <p id="currentPrice">Price: Loading...</p>
         <p id="change24h">24h Change: Loading...</p>
+        <p id="ownedAmount" style="margin-top: 20px; font-size: 18px; text-align: center; color: #aaa;">
+            Loading your balance...
+        </p>
 
         <div style="margin: 30px 0">
             <label style="display: block; margin-bottom: 8px">Amount (USD):</label>
@@ -62,7 +65,7 @@
         <p id="feedback" style="margin-top: 20px; font-size: 18px; text-align: center"></p>
     </main>
     <script src="wallet.js"></script>
-    <script src="wallet.js"></script>
+    <script src="script.js"></script>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -90,6 +93,11 @@
                     const changeText = change >= 0 ? `+${change}%` : `${change}%`;
                     const color = change >= 0 ? '#00ff9d' : '#ff3b30';
                     document.getElementById("change24h").innerHTML = `24h Change: <span style="color:${color};">${changeText}</span>`;
+                    const owned = portfolio[coinId] ? portfolio[coinId].amount : 0;
+                    document.getElementById("ownedAmount").innerHTML =
+                        owned > 0
+                            ? `You own: ${owned.toFixed(4)} ${pair.baseToken.symbol}`
+                            : `You own: 0 ${pair.baseToken.symbol}`;
                 } catch (error) {
                     console.error("Load error:", error);
                     document.getElementById("coinName").innerHTML = "Error loading coin";
@@ -104,6 +112,7 @@
             const amount = Number(document.getElementById("amount").value);
             if (amount <= 0 || isNaN(amount)) {
                 document.getElementById("feedback").innerHTML = "Enter a valid amount!";
+                document.getElementById("feedback").style.color = "red";
                 return;
             }
 
@@ -112,6 +121,8 @@
 
             const result = buyCoin(coinId, amount, currentPrice);
             document.getElementById("feedback").innerHTML = result.message;
+            document.getElementById("feedback").style.color = result.success ? "#00ff9d" : "red";
+
         };
 
         // Sell placeholder
@@ -136,7 +147,7 @@
 
             const result = sellCoin(coinId, coinAmount, currentPrice);
             document.getElementById("feedback").innerHTML = result.message;
-            document.getElementById("feedback").style.color = result.success ? "#00ff9d" : "red";
+            document.getElementById("feedback").style.color = result.success ? "red" : "red";
 
             if (result.success) amountEl.value = "";
         };
