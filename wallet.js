@@ -81,4 +81,4 @@ function sellCoin(coinId, coinAmount, currentPrice) {
   updateHomeBalance();
 
   return { success: true, message: `Sold ${coinAmount.toFixed(4)} ${coinId}` };
-}
+} 

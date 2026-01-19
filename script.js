@@ -33,7 +33,11 @@ async function renderPortfolio() {
     // First collect all data
     for (const ca of ownedCAs) {
       const holding = portfolio[ca];
+<<<<<<< HEAD
       if (holding.amount < 0.00001) continue;
+=======
+      if (holding.amount < 0.0001) continue;
+>>>>>>> 52f70c29da273abe58abe93899bc006996503fc9
 
       const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
       const data = await response.json();
@@ -132,4 +136,8 @@ document.getElementById("caInput").addEventListener("keypress", (e) => {
     document.getElementById("searchBtn").click();
   }
 });
+<<<<<<< HEAD
 updateHomeBalance(); // initial
+=======
+updateHomeBalance(); // initial
+>>>>>>> 52f70c29da273abe58abe93899bc006996503fc9
