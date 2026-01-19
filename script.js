@@ -75,7 +75,7 @@ async function renderPortfolio() {
         <div class="token-info">
           <div class="token-icon">${pair.baseToken.symbol}</div>
           <div>
-            <p>${pair.baseToken.name} (${pair.baseToken.symbol})</p>
+            <p>${pair.baseToken.name} </p>
             <p class="price">$${value.toFixed(2)}</p>
           </div>
         </div>
