@@ -1,10 +1,11 @@
-// wallet.js — shared wallet logic only
+// wallet.js — shared wallet logic only (no page-specific code)
 
-let balance = localStorage.getItem("balance")
+// Globals — no 'let' so they are shared
+balance = localStorage.getItem("balance")
   ? Number(localStorage.getItem("balance"))
   : 10000;
 
-let portfolio = localStorage.getItem("portfolio")
+portfolio = localStorage.getItem("portfolio")
   ? JSON.parse(localStorage.getItem("portfolio"))
   : {};
 
@@ -14,7 +15,7 @@ function saveWallet() {
   localStorage.setItem("portfolio", JSON.stringify(portfolio));
 }
 
-// Update balance display on home
+// Update balance display on home (safe — checks if element exists)
 function updateHomeBalance() {
   const el = document.querySelector(".balance");
   if (el) {
@@ -24,8 +25,16 @@ function updateHomeBalance() {
 
 // Buy
 function buyCoin(coinId, usdAmount, currentPrice) {
+  if (isNaN(usdAmount) || usdAmount <= 0) {
+    return { success: false, message: "Invalid amount" };
+  }
+
   if (usdAmount > balance) {
     return { success: false, message: "Not enough balance!" };
+  }
+
+  if (isNaN(currentPrice) || currentPrice <= 0) {
+    return { success: false, message: "Invalid price" };
   }
 
   const coinsBought = usdAmount / currentPrice;
@@ -33,18 +42,19 @@ function buyCoin(coinId, usdAmount, currentPrice) {
   balance -= usdAmount;
 
   if (!portfolio[coinId]) {
-    portfolio[coinId] = { amount: 0 };
+    portfolio[coinId] = { amount: 0, totalCost: 0 };
   }
 
   portfolio[coinId].amount += coinsBought;
+  portfolio[coinId].totalCost += usdAmount;
 
   saveWallet();
-  updateHomeBalance(); // <-- add this line
+  updateHomeBalance();
 
-  return { success: true, message: `Bought ${coinsBought.toFixed(4)} of ${coinId.toUpperCase()}` };
+  return { success: true, message: `Bought ${coinsBought.toFixed(4)} ${coinId}` };
 }
 
-// Sell: sell coins for USD
+// Sell
 function sellCoin(coinId, coinAmount, currentPrice) {
   if (isNaN(coinAmount) || coinAmount <= 0) {
     return { success: false, message: "Invalid amount" };
@@ -54,23 +64,21 @@ function sellCoin(coinId, coinAmount, currentPrice) {
     return { success: false, message: "Not enough coins!" };
   }
 
+  if (isNaN(currentPrice) || currentPrice <= 0) {
+    return { success: false, message: "Invalid price" };
+  }
+
   const usdReceived = coinAmount * currentPrice;
 
   balance += usdReceived;
   portfolio[coinId].amount -= coinAmount;
 
-  // Remove coin completely if amount reaches 0
-  if (portfolio[coinId].amount <= 0.000001) {  // small threshold for floating point
+  if (portfolio[coinId].amount <= 0.000001) {
     delete portfolio[coinId];
   }
 
   saveWallet();
   updateHomeBalance();
 
-  return { success: true, message: `Sold ${coinAmount.toFixed(4)} of ${coinId}` };
+  return { success: true, message: `Sold ${coinAmount.toFixed(4)} ${coinId}` };
 }
-
-window.addEventListener("pageshow", () => {
-  updateHomeBalance();  // refresh balance when coming back from buy-sell
-});
-updateHomeBalance(); // initial load
