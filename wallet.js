@@ -17,10 +17,14 @@ function saveWallet() {
 
 // Update balance display on home (safe — checks if element exists)
 function updateHomeBalance() {
-  const el = document.querySelector(".balance");
-  if (el) {
-    el.innerHTML = `$${balance.toFixed(2)}`;
-  }
+  const balanceEl = document.querySelector(".balance");
+  const totalEl = document.getElementById("totalWorth");
+
+  const portfolioValue = getPortfolioValue();
+  const totalWorth = balance + portfolioValue;
+
+  if (balanceEl) balanceEl.innerHTML = `$${balance.toFixed(2)}`;
+  if (totalEl) totalEl.innerHTML = `Total Worth: $${totalWorth.toFixed(2)}`;
 }
 
 // Buy
@@ -47,6 +51,7 @@ function buyCoin(coinId, usdAmount, currentPrice) {
 
   portfolio[coinId].amount += coinsBought;
   portfolio[coinId].totalCost += usdAmount;
+  portfolio[coinId].lastPrice = currentPrice;  // add this after totalCost
 
   saveWallet();
   updateHomeBalance();
@@ -82,3 +87,15 @@ function sellCoin(coinId, coinAmount, currentPrice) {
 
   return { success: true, message: `Sold ${coinAmount.toFixed(4)} ${coinId}` };
 } 
+
+// Calculate total USD value of all meme holdings
+function getPortfolioValue() {
+  let total = 0;
+  Object.values(portfolio).forEach(holding => {
+    if (holding.amount > 0 && holding.lastPrice) {
+      total += holding.amount * holding.lastPrice;
+    }
+  });
+  return total;
+}
+  updateHomeBalance();
