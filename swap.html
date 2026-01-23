@@ -1,116 +1,153 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coming Soon - MemeWallet</title>
-    <link rel="stylesheet" href="style.css"> <!-- reuse your main CSS -->
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background: #0f0f0f;
-            color: #e0e0e0;
-            font-family: Arial, sans-serif;
-        }
-
-        header {
-            background: #1a1a1a;
-            padding: 15px;
-            border-bottom: 1px solid #333;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            color: #00ff9d;
-            animation: pulse 2s infinite;
-        }
-
-        p {
-            font-size: 1.3rem;
-            max-width: 600px;
-            margin-bottom: 30px;
-            color: #aaa;
-        }
-
-        .dots {
-            font-size: 2rem;
-            color: #00ff9d;
-            animation: dots 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes dots {
-            0% {
-                content: ".";
-            }
-
-            33% {
-                content: "..";
-            }
-
-            66% {
-                content: "...";
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Swap</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+  <header>
+    <a href="index.html" style="color:#00ff9d; text-decoration:none; font-size:18px;">← Back</a>
+    <h1>Swap</h1>
+  </header>
 
-    <header>
-        <a href="index.html" style="color: #00ff9d; text-decoration: none; font-size: 18px;">← Back to Home</a>
-    </header>
+  <main style="padding:20px;">
+    <div style="margin-bottom:24px;">
+      <label>From</label>
+      <select id="fromCoin" style="width:100%; padding:12px; font-size:16px; border-radius:8px; background:#1e1e1e; color:white; border:1px solid #444;">
+        <option value="">Select coin to swap from</option>
+      </select>
+      <input type="number" id="fromAmount" placeholder="Amount" style="width:100%; margin-top:8px; padding:12px; font-size:16px; border-radius:8px; background:#1e1e1e; color:white; border:1px solid #444;">
+    </div>
 
-    <main>
-        <h1>Coming Soon</h1>
-        <p>This feature is under construction. We'll be adding full <strong>Swap</strong>, <strong>Deposit</strong>,
-            <strong>Send</strong>, and <strong>Receive</strong> functionality soon — with real wallet vibes and demo
-            trading.
-        </p>
-        <p class="dots">Loading next update<span>.</span><span>.</span><span>.</span></p>
+    <div style="margin-bottom:24px;">
+      <label>To</label>
+      <select id="toCoin" style="width:100%; padding:12px; font-size:16px; border-radius:8px; background:#1e1e1e; color:white; border:1px solid #444;">
+        <option value="">Select coin to swap to</option>
+        <option value="USDT">USDT</option>
+      </select>
+      <input type="text" id="caSearch" placeholder="Or paste CA for new coin" style="width:100%; margin-top:8px; padding:12px; font-size:16px; border-radius:8px; background:#1e1e1e; color:white; border:1px solid #444;">
+      <p id="toAmount" style="margin-top:8px; font-size:16px; color:#aaa;">Estimated receive: 0</p>
+    </div>
 
-        <p style="font-size: 1.1rem; margin-top: 40px;">
-            Stay tuned — more meme coin chaos incoming 😈
-        </p>
-    </main>
-    <nav>
-        <div class="nav-bar">
-            <a href="index.html" class="nav-item active" style="text-decoration: none; color: inherit">Home</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Markets</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Trade</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Earn</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Discover</a>
-        </div>
-    </nav>
+    <button id="swapBtn" style="width:100%; padding:16px; background:#00ff9d; color:black; border:none; border-radius:10px; font-weight:bold; font-size:18px;">Swap</button>
+    <p id="swapFeedback" style="margin-top:16px; text-align:center; font-size:18px;"></p>
+  </main>
 
+  <script src="wallet.js"></script>
+  <script>
+    // Populate "From" dropdown with your holdings
+    const fromSelect = document.getElementById("fromCoin");
+    Object.keys(portfolio).forEach(ca => {
+      const holding = portfolio[ca];
+      if (holding.amount > 0) {
+        const option = document.createElement("option");
+        option.value = ca;
+        option.textContent = `${ca.slice(0,6)}... (${holding.amount.toFixed(2)} coins)`;
+        fromSelect.appendChild(option);
+      }
+    });
+
+    // Populate "To" with holdings + USDT
+    const toSelect = document.getElementById("toCoin");
+    Object.keys(portfolio).forEach(ca => {
+      const holding = portfolio[ca];
+      if (holding.amount > 0) {
+        const option = document.createElement("option");
+        option.value = ca;
+        option.textContent = `${ca.slice(0,6)}...`;
+        toSelect.appendChild(option);
+      }
+    });
+
+    // Search new CA for "To"
+    document.getElementById("caSearch").addEventListener("input", async () => {
+      const ca = document.getElementById("caSearch").value.trim();
+      if (ca.length < 30) return;
+
+      try {
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
+        const data = await response.json();
+        if (data.pairs && data.pairs.length > 0) {
+          const pair = data.pairs[0];
+          document.getElementById("toCoin").value = ca;  // select it
+          document.getElementById("toAmount").innerHTML = `Estimated receive: ...`;
+        }
+      } catch (err) {
+        document.getElementById("swapFeedback").innerHTML = "Invalid CA";
+      }
+    });
+
+    // Real-time estimate
+    document.getElementById("fromAmount").addEventListener("input", async () => {
+      const fromAmount = Number(document.getElementById("fromAmount").value);
+      const fromCa = document.getElementById("fromCoin").value;
+      const toCa = document.getElementById("toCoin").value;
+
+      if (!fromCa || !toCa || fromAmount <= 0) return;
+
+      // Get from price
+      const fromResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${fromCa}`);
+      const fromData = await fromResponse.json();
+      const fromPrice = fromData.pairs?.[0]?.priceUsd || 0;
+
+      // Get to price
+      const toResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${toCa}`);
+      const toData = await toResponse.json();
+      const toPrice = toData.pairs?.[0]?.priceUsd || 0;
+
+      if (fromPrice > 0 && toPrice > 0) {
+        const usdValue = fromAmount * fromPrice;
+        const receiveAmount = usdValue / toPrice;
+        document.getElementById("toAmount").innerHTML = `Estimated receive: ${receiveAmount.toFixed(4)}`;
+      }
+    });
+
+    // Swap button
+    document.getElementById("swapBtn").onclick = async () => {
+      const feedback = document.getElementById("swapFeedback");
+      const fromCa = document.getElementById("fromCoin").value;
+      const toCa = document.getElementById("toCoin").value;
+      const amount = Number(document.getElementById("fromAmount").value);
+
+      if (!fromCa || !toCa || amount <= 0) {
+        feedback.innerHTML = "Select coins and amount";
+        return;
+      }
+
+      // Get prices
+      const fromResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${fromCa}`);
+      const fromData = await fromResponse.json();
+      const fromPrice = fromData.pairs?.[0]?.priceUsd || 0;
+
+      const toResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${toCa}`);
+      const toData = await toResponse.json();
+      const toPrice = toData.pairs?.[0]?.priceUsd || 0;
+
+      if (fromPrice <= 0 || toPrice <= 0) {
+        feedback.innerHTML = "Price fetch failed";
+        return;
+      }
+
+      // Sell from coin
+      const sellResult = sellCoin(fromCa, amount, fromPrice);
+      if (!sellResult.success) {
+        feedback.innerHTML = sellResult.message;
+        return;
+      }
+
+      // Buy to coin
+      const usdReceived = amount * fromPrice;
+      const buyResult = buyCoin(toCa, usdReceived, toPrice);
+      if (!buyResult.success) {
+        feedback.innerHTML = buyResult.message;
+        return;
+      }
+
+      feedback.innerHTML = `Swapped ${amount.toFixed(4)} ${fromCa} → ${buyResult.message}`;
+      await updateHomeBalance();
+    };
+  </script>
 </body>
-
 </html>

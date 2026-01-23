@@ -16,15 +16,20 @@ function saveWallet() {
 }
 
 // Update balance display on home (safe — checks if element exists)
-function updateHomeBalance() {
+async function updateHomeBalance() {
   const balanceEl = document.querySelector(".balance");
   const totalEl = document.getElementById("totalWorth");
 
-  const portfolioValue = getPortfolioValue();
+  const portfolioValue = await getPortfolioValue();
   const totalWorth = balance + portfolioValue;
 
-  if (balanceEl) balanceEl.innerHTML = `$${balance.toFixed(2)}`;
-  if (totalEl) totalEl.innerHTML = `Total Worth: $${totalWorth.toFixed(2)}`;
+  if (balanceEl) {
+    balanceEl.innerHTML = `$${balance.toFixed(2)}`;
+  }
+
+  if (totalEl) {
+    totalEl.innerHTML = `Total Worth: $${totalWorth.toFixed(2)}`;
+  }
 }
 
 // Buy
@@ -88,14 +93,28 @@ function sellCoin(coinId, coinAmount, currentPrice) {
   return { success: true, message: `Sold ${coinAmount.toFixed(4)} ${coinId}` };
 } 
 
-// Calculate total USD value of all meme holdings
-function getPortfolioValue() {
+// Calculate total USD value of all meme holdings (live prices)
+async function getPortfolioValue() {
   let total = 0;
-  Object.values(portfolio).forEach(holding => {
-    if (holding.amount > 0 && holding.lastPrice) {
-      total += holding.amount * holding.lastPrice;
+
+  for (const ca in portfolio) {
+    const holding = portfolio[ca];
+    if (holding.amount < 0.000001) continue;
+
+    try {
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
+      const data = await response.json();
+
+      if (data.pairs && data.pairs.length > 0) {
+        const pair = data.pairs[0];
+        const currentPrice = Number(pair.priceUsd);
+        total += holding.amount * currentPrice;
+      }
+    } catch (error) {
+      console.error("Portfolio price fetch error for", ca, ":", error);
     }
-  });
+  }
+
   return total;
 }
   updateHomeBalance();
