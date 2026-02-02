@@ -67,10 +67,10 @@
     <nav>
         <div class="nav-bar">
             <a href="index.html" class="nav-item active" style="text-decoration: none; color: inherit">Home</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Markets</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Trade</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Earn</a>
-            <a href="swap.html" class="nav-item" style="text-decoration: none; color: #aaa">Discover</a>
+            <a href="comingsoon.html" class="nav-item" style="text-decoration: none; color: #aaa">Markets</a>
+            <a href="comingsoon.html" class="nav-item" style="text-decoration: none; color: #aaa">Trade</a>
+            <a href="comingsoon.html" class="nav-item" style="text-decoration: none; color: #aaa">Earn</a>
+            <a href="comingsoon.html" class="nav-item" style="text-decoration: none; color: #aaa">Discover</a>
         </div>
     </nav>
     <script src="wallet.js"></script>
@@ -93,6 +93,7 @@
                     }
 
                     const pair = data.pairs[0];
+                    window.currentSymbol = pair.baseToken.symbol;
                     const price = Number(pair.priceUsd);
                     const change = pair.priceChange?.h24 || 0;
 
@@ -121,7 +122,6 @@
             const amount = Number(document.getElementById("amount").value);
             if (amount <= 0 || isNaN(amount)) {
                 document.getElementById("feedback").innerHTML = "Enter a valid amount!";
-                document.getElementById("feedback").style.color = "red";
                 return;
             }
 
@@ -129,8 +129,10 @@
             const currentPrice = Number(priceText.replace("Price: $", ""));
 
             const result = buyCoin(coinId, amount, currentPrice);
-            document.getElementById("feedback").innerHTML = result.message;
-            document.getElementById("feedback").style.color = result.success ? "#00ff9d" : "red";
+            document.getElementById("feedback").innerHTML = result.success
+                ? `Bought ${(amount / currentPrice).toFixed(4)} $${window.currentSymbol || coinId}`
+                : result.message;
+            document.getElementById("feedback").style.color = result.success ? "#00ff9d" : "#ff3b30";
 
         };
 
@@ -155,7 +157,9 @@
             }
 
             const result = sellCoin(coinId, coinAmount, currentPrice);
-            document.getElementById("feedback").innerHTML = result.message;
+            document.getElementById("feedback").innerHTML = result.success
+                ? `Sold ${coinAmount.toFixed(4)} $${window.currentSymbol || coinId}`
+                : result.message;
             document.getElementById("feedback").style.color = result.success ? "red" : "red";
 
             if (result.success) amountEl.value = "";
