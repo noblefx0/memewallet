@@ -48,7 +48,7 @@ function buyCoin(coinId, usdAmount, currentPrice) {
 
   const coinsBought = usdAmount / currentPrice;
 
-  balance -= usdAmount;
+  balance -= usdAmount; 
 
   if (!portfolio[coinId]) {
     portfolio[coinId] = { amount: 0, totalCost: 0 };
